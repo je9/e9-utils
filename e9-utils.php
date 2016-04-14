@@ -4,7 +4,7 @@
  * Plugin URI: URI: https://github.com/je9/e9-utils
  * GitHub Plugin URI: je9/e9-utils
  * Description: E9 tools and improvements for WordPress.
- * Version: 0.1.2
+ * Version: 0.1.3
  * Author: justin@e9.nz
  * Author URI: http://e9.nz
  * License: GPLv2 or later
@@ -56,24 +56,30 @@ function e9_utils_dashboard_widget_function() {
   // backups occur between 6am and midday. So we need a 6 hr gap to ensure that
   // the backup was done after the edit. This also flags sites that have been
   // edited within the last few hours: edits might still be happening.
-  $time_message = '<span style="color: #c11; font-weight: 700;">
-    Backup is too old</span>';
+  $time_message = '<span class="backup-stop">Backup is too old</span>';
   if ( $time_difference >= 0 ) :
-    $time_message = '<span style="color: #c81; font-weight: 700;">
-      Backup close to edit. Check time on S3.</span>';
+    $time_message = '<span class="backup-maybe">Backup close to edit. Check time on S3.</span>';
     if ( $time_difference >= 6 ) :
-      $time_message = '<span style="color: #1c8; font-weight: 700;">
-        Backup OK</span>';
+      $time_message = '<span class="backup-go">Backup OK</span>';
     endif;
   endif;
 
 ?>
 <style>
-  dd {
-    font-weight: bold;
+  .e9-utils dd {
+    font-weight: 700;
+  }
+  .e9-utils .backup-stop {
+    color: #c11;
+  }
+  .e9-utils .backup-maybe {
+    color: #c81;
+  }
+  .e9-utils .backup-go {
+    color: #1c8;
   }
 </style>
-<dl>
+<dl class="e9-utils">
   <dt>Last content edit: </dt>
   <dd><?php echo $site_mod_date; ?></dd>
   <dt>Last S3 backup: </dt>
@@ -90,4 +96,4 @@ function e9_utils_add_dashboard_widgets() {
     'E9 Utils',
     'e9_utils_dashboard_widget_function' );
 }
-add_action('wp_dashboard_setup', 'e9_utils_add_dashboard_widgets' );
+add_action( 'wp_dashboard_setup', 'e9_utils_add_dashboard_widgets' );
