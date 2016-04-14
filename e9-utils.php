@@ -4,7 +4,7 @@
  * Plugin URI: URI: https://github.com/je9/e9-utils
  * GitHub Plugin URI: je9/e9-utils
  * Description: E9 tools and improvements for WordPress.
- * Version: 0.1.4
+ * Version: 0.1.5
  * Author: justin@e9.nz
  * Author URI: http://e9.nz
  * License: GPLv2 or later
@@ -15,6 +15,9 @@
 
 function e9_utils_dashboard_widget_function() {
   global $wpdb;
+
+  date_default_timezone_set( 'NZ' );
+
   $query = "SELECT post_modified
     FROM $wpdb->posts
     WHERE post_title <> 'Auto Draft'
