@@ -4,8 +4,8 @@
  * Plugin URI: URI: https://github.com/je9/e9-utils
  * GitHub Plugin URI: je9/e9-utils
  * Description: E9 tools and improvements for WordPress.
- * Version: 0.11
- * Author: Justin Taylor
+ * Version: 0.12
+ * Author: justin@e9.nz
  * Author URI: http://e9.nz
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
