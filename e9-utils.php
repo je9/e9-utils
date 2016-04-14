@@ -1,13 +1,16 @@
 <?php
 /*
  * Plugin Name: e9-utils
- * GitHub Plugin URI: https://github
+ * Plugin URI: URI: https://github.com/je9/e9-utils
+ * GitHub Plugin URI: je9/e9-utils
  * Description: E9 tools and improvements for WordPress.
- * Version: 0.1
+ * Version: 0.11
  * Author: Justin Taylor
  * Author URI: http://e9.nz
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * RequiresWP: 4.5
+ * RequiresPHP: 5.3.0
 */
 
 function e9_utils_dashboard_widget_function() {
