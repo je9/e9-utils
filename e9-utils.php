@@ -1,10 +1,9 @@
 <?php
 /*
  * Plugin Name: e9-utils
- * Plugin URI: URI: https://github.com/je9/e9-utils
  * GitHub Plugin URI: je9/e9-utils
  * Description: E9 tools and improvements for WordPress.
- * Version: 0.1.5
+ * Version: 0.1.6
  * Author: justin@e9.nz
  * Author URI: http://e9.nz
  * License: GPLv2 or later
@@ -27,6 +26,7 @@ function e9_utils_dashboard_widget_function() {
 
   $site_mod_date = $wpdb->get_var( $query );
   $site_mod_weekday = date( 'w', strtotime( $site_mod_date ) );
+  $site_mod_hour = intval( date( 'H', strtotime( $site_mod_date ) ) );
 
   $current_date = date( 'Y-m-d H:i:s' );
 
@@ -35,35 +35,45 @@ function e9_utils_dashboard_widget_function() {
     'tuesday this',
     'thursday this',
     'friday this',
-    'saturday this' ];
+    'saturday this',
+    'sunday this' ];
 
-  function get_date_from_desc( $day_desc ) {
+  function get_date_from_desc( $day_desc, $hour = 12 ) {
     return date(
       "Y-m-d H:i:s",
-      strtotime( $day_desc . ' week' ) + 60 * 60 * 12 );
+      strtotime( $day_desc . ' week' ) + 60 * 60 * $hour );
   }
 
   $last_backup_date = get_date_from_desc( $backup_days[ 0 ] );
+  $next_backup_date = $last_backup_date;
 
-  foreach ( $backup_days as $day ) {
-    $day_bu_time = get_date_from_desc( $day );
+  for ( $i = 0, $l = count( $backup_days ); $i < $l; $i++ ) :
+    $day_bu_time = get_date_from_desc( $backup_days[ $i ] );
     if ( strtotime( $current_date ) > strtotime( $day_bu_time ) ) :
       $last_backup_date = $day_bu_time;
+      $next_backup_date = get_date_from_desc( $backup_days[ $i + 1 ] );
     else :
       break;
     endif;
-  }
+  endfor;
 
-  $time_difference = strtotime( $last_backup_date ) - strtotime( $site_mod_date );
+  $time_difference =
+    strtotime( $last_backup_date ) - strtotime( $site_mod_date );
   $time_difference = floor( $time_difference / 60 / 60 );
+  $time_difference_next =
+    strtotime( $next_backup_date ) - strtotime( $site_mod_date );
+  $time_difference_next = floor( $time_difference_next / 60 / 60 );
   // backups occur between 6am and midday. So we need a 6 hr gap to ensure that
-  // the backup was done after the edit. This also flags sites that have been
-  // edited within the last few hours: edits might still be happening.
-  $time_message = '<span class="backup-stop">Backup is too old</span>';
-  if ( $time_difference >= 0 ) :
-    $time_message = '<span class="backup-maybe">Backup close to edit. Check time on S3.</span>';
+  // the backup was done after the edit for mornings.
+  $time_message = '<span class="backup-stop">
+    Backup again before updates</span>';
+  if ( $time_difference >= 0 || $time_difference_next > -6 ) :
+    $time_message = '<span class="backup-maybe">
+      New backup may be required before updates</span><br>
+      <span class="light">Content was changed close to the backup time,
+      or a backup might be completed this morning</span>';
     if ( $time_difference >= 6 ) :
-      $time_message = '<span class="backup-go">Backup OK</span>';
+      $time_message = '<span class="backup-go">Backup is up to date</span>';
     endif;
   endif;
 
@@ -81,12 +91,21 @@ function e9_utils_dashboard_widget_function() {
   .e9-utils .backup-go {
     color: #1c8;
   }
+  .e9-utils .light {
+    font-weight: 400;
+  }
 </style>
 <dl class="e9-utils">
   <dt>Last content edit: </dt>
   <dd><?php echo $site_mod_date; ?></dd>
   <dt>Last S3 backup: </dt>
-  <dd><?php echo $last_backup_date; ?></dd>
+  <dd>
+    <?php echo substr( $last_backup_date, 0, 11); ?>
+    (Between 06:00 and 12:00)</dd>
+  <dt>Next S3 backup: </dt>
+  <dd>
+    <?php echo substr( $next_backup_date, 0, 11); ?>
+    (Between 06:00 and 12:00)</dd>
   <dt>Backup status: </dt>
   <dd><?php echo $time_message; ?></dd>
 </dl>
